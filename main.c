@@ -9,25 +9,20 @@
 //
 //
 //
-/* Wiring : This needs to change due to io conflicts
- 
- STM32F030          NRF905
+/*  STM32F030          NRF905
  PA1                DR
- PA2                Pwr  ---> PF0
- PA3                CE   ---> PF1
+ PF0                Pwr  
+ PF1                CE   
  PA4                CSN
  PA5                SPI SCLK
  PA6                SPI MISO
  PA7                SPI MOSI
- PA9                UART TX  ---> PA2
- PA10               UART RX  ---> PA3
- 
- ??                 CD
  PB1                TXEn
-                    I2C SDA   PA10
-                    I2C SCL   PA9 
  
- 
+ UART Interface
+ PA2                UART TX  
+ PA3                UART RX  
+  
  */
 #include "stm32f030xx.h"
 #include "serial.h"
@@ -41,7 +36,12 @@ void delay(int dly)
 {
   while( dly--);
 }
-
+void delay_ms(unsigned ms)
+{
+    // Software delay that provides approx 1ms delay:  Not power efficient - look for a better solution :)
+    while(ms--)
+        delay(850);
+}
 char UserInput[10];
 /*************** 
  * ADC Test routines
@@ -128,16 +128,15 @@ int main()
   initNRF905();
   PwrHigh(); // turn on the radio
   CELow();
-  TXEnLow();
+  TXEnLow();  
+// Set Frequency to 434.2MHz 
   
-// Set Frequency to 868MHz  
-  
-  setRXPower(0); // normal power 
-  setTXPower(3);
-  setChannel(0x76);
+  setRXPower(0); // normal RX sensitivity
+  setTXPower(3); // Maximum TX power (10mW)
+  setChannel(0x76); // Channel number
   
   setRange(0);
-  setAutoRetran(1);
+  setAutoRetran(0);  // Don't bother with auto-retransmit (actually seems to work better without)
   
   
   writeRegister(9,0x5f); // 8 bit CRC, CRC Enable, 16MHz external crystal, not using clock out

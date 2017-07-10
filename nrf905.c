@@ -2,12 +2,8 @@
 #include "spi.h"
 #include "nrf905.h"
 void delay(unsigned len);
-void delay_ms(unsigned ms)
-{
-    // Software delay that provides approx 1ms delay:  Not power efficient - look for a better solution :)
-    while(ms--)
-        delay(850);
-}
+void delay_ms(unsigned ms);
+
 
 void initNRF905()
 {
